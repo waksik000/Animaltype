@@ -16,6 +16,14 @@ p {
   color: #ccc;
   margin: 0.3em 0;
 }
+/* Контейнер приложения */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центрирует по горизонтали */
+  gap: 1.5rem; /* Расстояние между заголовком, подписью и настройками */
+  margin-top: 2rem;
+}
 
 /* --- Текст для печати --- */
 .typing-container {
@@ -137,4 +145,78 @@ div[tabindex="0"]:focus {
   .modal {
     padding: 1.5rem 2rem;
   }
+}
+
+/* --- Настройки --- */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центрируем весь контент по горизонтали */
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  max-width: 500px;
+  width: 100%;
+  margin-top: 0; /* убираем лишний отступ сверху */
+  text-align: center; /* заголовки и кнопки по центру */
+}
+
+.settings-container h2 {
+  color: #646cff;
+  margin-bottom: 1rem;
+}
+
+.settings-group {
+  margin-bottom: 1rem;
+  width: 100%; /* чтобы кнопки не слипались */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центрируем кнопки внутри группы */
+}
+
+.settings-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #ccc;
+  text-align: center; /* Центрируем подписи */
+}
+
+.buttons-group {
+  display: flex;
+  flex-wrap: wrap; /* чтобы кнопки переносились на маленьких экранах */
+  justify-content: center; /* Центрируем кнопки */
+}
+
+.buttons-group button {
+  margin: 0.25rem; /* Отступы вокруг кнопок */
+}
+
+.start-button {
+  display: block;
+  margin: 1rem auto 0 auto; /* центрируем кнопку запуска */
+  background-color: #646cff;
+  color: #fff;
+  font-weight: 600;
+}
+
+.start-button:hover {
+  background-color: #5454ff;
+}
+
+/* --- Таймер --- */
+.timer {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #646cff;
+  margin: 1rem 0 0.5rem 0;
+  letter-spacing: 0.05em;
+}
+
+.timer span {
+  font-size: 2.5rem;
+  color: #fff;
+  font-weight: 700;
 }

@@ -66,3 +66,9 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+/* --- Выбранная кнопка --- */
+button.active {
+  border-color: #646cff;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.5);
+  background-color: #2e2e2e;
+}
