@@ -1,28 +1,26 @@
-import { useEffect, useState, useRef, use } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import wordsData from "./data/words.json";
 
 function App() {
   const [userLanguage, setUserLanguage] = useState("en"); // выбор языка
   const [lines, setLines] = useState([]); // массив строк для отображения
-  const [currentLineIndex, setCurrentLineIndex] = useState(0); // индекс строки, которую печатаем
   const [typedChars, setTypedChars] = useState([]); // символы текущей строки
-  const [splitText, setSplitText] = useState([]); // массив символов для подсветки
-  const typingRef = useRef(null); // useRef для автофокуса на поле ввода
-  const [timeLimit, setTimeLimit] = useState(30); // лимит времени
-  const [timeLeft, setTimeLeft] = useState(30); // остаток времени
-  const [isRunning, setIsRunning] = useState(false); // Проверка начал ли пользователь печатать
-  const [isAddingText, setIsAddingText] = useState(false);
-  const correctChars = typedChars.filter((c) => c.status === "correct").length; // Количество правильно введеных символов
-  const timeElapsed = timeLimit - timeLeft; // Время затраченное пользователем на ввод текста
-  const userWPM = timeElapsed > 0 ? correctChars / 5 / (timeElapsed / 60) : 0; // Words per minute пользователя
-  const accuracy =
-    typedChars.length === 0 ? 100 : (correctChars / typedChars.length) * 100; // Процент правильно введеных слов
-  const errors = typedChars.filter((c) => c.status === "incorrect").length; // Количество ошибок пользователя
+  const [totalTypedChars, setTotalTypedChars] = useState([]); // для статистики всех строк
+  const typingRef = useRef(null);
+  const [timeLimit, setTimeLimit] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [isRunning, setIsRunning] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
-  const [showResults, setShowResults] = useState(false); // для UX дизайна - показывать результат или нет
+  // Расчёт статистики
+  const correctChars = totalTypedChars.filter((c) => c.status === "correct").length;
+  const timeElapsed = timeLimit - timeLeft;
+  const userWPM = timeElapsed > 0 ? correctChars / 5 / (timeElapsed / 60) : 0;
+  const accuracy = totalTypedChars.length === 0 ? 100 : (correctChars / totalTypedChars.length) * 100;
+  const errors = totalTypedChars.filter((c) => c.status === "incorrect").length;
 
-  function generateText(lang, wordCount = 50) {
+  function generateText(lang, wordCount = 20) {
     const source = wordsData[lang];
     let text = [];
     for (let i = 0; i < wordCount; i++) {
@@ -31,75 +29,42 @@ function App() {
     }
     return text.join(" ");
   }
+
   useEffect(() => {
     if (!isRunning) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        return Math.max(prev - 1, 0);
-      });
-    }, 1000);
-
+    const timer = setInterval(() => setTimeLeft((prev) => Math.max(prev - 1, 0)), 1000);
     return () => clearInterval(timer);
-  }, [isRunning]); // useEffect для запуска и работы таймера
+  }, [isRunning]);
 
   useEffect(() => {
     if (timeLeft === 0) {
       setIsRunning(false);
       setShowResults(true);
     }
-  }, [timeLeft]); // useEffect для остановки таймера
+  }, [timeLeft]);
 
   useEffect(() => {
-    if (typingRef.current) {
-      typingRef.current.focus();
-    }
-  }, [isRunning]); // useEffect для useRef для автоматического фокуса на поле ввода
+    if (typingRef.current) typingRef.current.focus();
+  }, [isRunning]);
 
-  function handleStart(e) {
+  function handleStart() {
     const initialLines = [
       generateText(userLanguage, 20),
       generateText(userLanguage, 20),
       generateText(userLanguage, 20),
-    ]
-    setLines(initialLines)
-    setCurrentLineIndex(0)
-    setTypedChars([])
+    ];
+    setLines(initialLines);
     setTypedChars([]);
+    setTotalTypedChars([]);
     setTimeLeft(timeLimit);
     setIsRunning(true);
     setShowResults(false);
-    if (typingRef.current) {
-      typingRef.current.focus();
-    }
+    if (typingRef.current) typingRef.current.focus();
   }
 
   function handleKeyDown(e) {
-    const currentIndex = typedChars.length;
-    const expectedChar = lines[currentLineIndex][typedChars.length];
-    e.preventDefault();
     if (timeLeft === 0) return;
-    if (typedChars.length >= lines[0].length)// строка завершена
-      { 
-        setLines(prev => [...prev.slice(1),generateText(userLanguage,10)])
-        setTypedChars([])
-     } 
-    if (!isAddingText && splitText.length - typedChars.length <= 50) {
-      // Добавление новых слов если они заканчиваются
-      setIsAddingText(true);
-      setTimeout(() => {
-        const newText = generateText(userLanguage, 20);
-        setDisplayText((prev) => prev + " " + newText);
-        setSplitText((prev) => [...prev, " ", ...newText.split("")]);
-        setIsAddingText(false);
-      }, 250);
-    }
-
-    if (currentIndex >= splitText.length) return; // Когда пользователь напечатает весь текст остановить код сразу
-    //time
-    if (!isRunning) {
-      setIsRunning(true);
-    }
+    e.preventDefault();
 
     // Backspace
     if (e.key === "Backspace") {
@@ -108,13 +73,27 @@ function App() {
     }
     if (e.key.length > 1) return;
 
+    const currentIndex = typedChars.length;
+    const currentLine = lines[0];
+    const expectedChar = currentLine[currentIndex] || "";
     const status = e.key === expectedChar ? "correct" : "incorrect";
 
     setTypedChars((prev) => [...prev, { char: e.key, status }]);
+
+    // Проверка завершения текущей строки
+    if (currentIndex + 1 >= currentLine.length) {
+      // Сохраняем все символы в общую статистику
+      setTotalTypedChars((prev) => [...prev, ...[...typedChars, { char: e.key, status }]]);
+
+      // Сдвиг строк: первая исчезает, вторая становится первой, третья второй, добавляется новая третья
+      setLines((prev) => [...prev.slice(1), generateText(userLanguage, 20)]);
+      setTypedChars([]); // очистка ввода
+    }
   }
 
   function handleRestart() {
     setTypedChars([]);
+    setTotalTypedChars([]);
     setTimeLeft(timeLimit);
     setIsRunning(false);
     setShowResults(false);
@@ -124,9 +103,11 @@ function App() {
     <div className="app-container">
       <h1>Animaltype</h1>
       <p>Проверка скорости печати</p>
+
       {!isRunning && (
         <div className="settings-container">
           <h2>Настройки / Settings</h2>
+
           <div className="settings-group">
             <label>Выбор языка / Select language:</label>
             <div className="buttons-group">
@@ -136,7 +117,6 @@ function App() {
               >
                 Russian
               </button>
-
               <button
                 onClick={() => setUserLanguage("en")}
                 className={userLanguage === "en" ? "active" : ""}
@@ -175,24 +155,39 @@ function App() {
           </button>
         </div>
       )}
-      {(isRunning || displayText.length > 0) && (
+
+      {(isRunning || lines.length > 0) && (
         <p className="timer">
           Time left: <span>{timeLeft}</span>s
         </p>
       )}
-      {(isRunning || displayText.length > 0) && (
-        <div className="typing-container" ref={typingRef} onKeyDown={handleKeyDown} tabIndex={0}>
-          {lines.map((line, idx) => (
-          <div key={idx} className={idx === currentLineIndex ? "active-line" : "inactive-line"}>
-          {line.split("").map((ch, cIdx) => {
-            const status = typedChars[cIdx]?.status || "pending";
-            return <span key={cIdx} className={status}>{ch}</span>;
-          })}
-    </div>
-  ))}
-</div>
+
+      {(isRunning || lines.length > 0) && (
+        <div
+          className="typing-container"
+          ref={typingRef}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+        >
+          {lines.map((line, index) => (
+            <div key={index} className={index === 0 ? "active-line" : "inactive-line"}>
+              {line.split("").map((ch, cIndex) => {
+                let status = "pending";
+                if (index === 0) {
+                  if (cIndex < typedChars.length) status = typedChars[cIndex].status;
+                  else if (cIndex === typedChars.length) status = "current"; // подсветка текущей буквы
+                }
+                return (
+                  <span key={cIndex} className={status}>
+                    {ch}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
         </div>
       )}
+
       {showResults && (
         <div className="modal-overlay">
           <div className="modal">
