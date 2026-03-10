@@ -1,9 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import wordsData from "./data/words.json";
-
+import Settings from "./components/Settings";
+import Timer from "./components/Timer";
+import TypingArea from "./components/TypingArea";
+import ResultModal from "./components/ResultModal";
 function App() {
-  const [userLanguage, setUserLanguage] = useState("en"); // выбор языка
+  const [userLanguage, setUserLanguage] = useState("ru"); // выбор языка
   const [lines, setLines] = useState([]); // массив строк для отображения
   const [typedChars, setTypedChars] = useState([]); // символы текущей строки
   const [totalTypedChars, setTotalTypedChars] = useState([]); // для статистики всех строк
@@ -105,100 +108,36 @@ function App() {
       <p>Проверка скорости печати</p>
 
       {!isRunning && (
-        <div className="settings-container">
-          <h2>Настройки / Settings</h2>
+        <Settings
+          userLanguage={userLanguage}
+          setUserLanguage={setUserLanguage}
+          timeLimit={timeLimit}
+          setTimeLimit={setTimeLimit}
+          handleStart={handleStart}
+        />
+)}
 
-          <div className="settings-group">
-            <label>Выбор языка / Select language:</label>
-            <div className="buttons-group">
-              <button
-                onClick={() => setUserLanguage("ru")}
-                className={userLanguage === "ru" ? "active" : ""}
-              >
-                Russian
-              </button>
-              <button
-                onClick={() => setUserLanguage("en")}
-                className={userLanguage === "en" ? "active" : ""}
-              >
-                English
-              </button>
-            </div>
-          </div>
-
-          <div className="settings-group">
-            <label>Выбор времени / Time select:</label>
-            <div className="buttons-group">
-              <button
-                onClick={() => setTimeLimit(30)}
-                className={timeLimit === 30 ? "active" : ""}
-              >
-                30
-              </button>
-              <button
-                onClick={() => setTimeLimit(60)}
-                className={timeLimit === 60 ? "active" : ""}
-              >
-                60
-              </button>
-              <button
-                onClick={() => setTimeLimit(120)}
-                className={timeLimit === 120 ? "active" : ""}
-              >
-                120
-              </button>
-            </div>
-          </div>
-
-          <button className="start-button" onClick={handleStart}>
-            Start
-          </button>
-        </div>
+      {(isRunning || lines.length > 0) && (
+        <Timer
+        timeLeft={timeLeft}/>
       )}
 
       {(isRunning || lines.length > 0) && (
-        <p className="timer">
-          Time left: <span>{timeLeft}</span>s
-        </p>
-      )}
-
-      {(isRunning || lines.length > 0) && (
-        <div
-          className="typing-container"
-          ref={typingRef}
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
-        >
-          {lines.map((line, index) => (
-            <div key={index} className={index === 0 ? "active-line" : "inactive-line"}>
-              {line.split("").map((ch, cIndex) => {
-                let status = "pending";
-                if (index === 0) {
-                  if (cIndex < typedChars.length) status = typedChars[cIndex].status;
-                  else if (cIndex === typedChars.length) status = "current"; // подсветка текущей буквы
-                }
-                return (
-                  <span key={cIndex} className={status}>
-                    {ch}
-                  </span>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+        <TypingArea
+          lines={lines}
+          typedChars={typedChars}
+          handleKeyDown={handleKeyDown}
+          typingRef={typingRef}
+        />
       )}
 
       {showResults && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Results</h2>
-            <p>WPM: {Math.round(userWPM)}</p>
-            <p>Accuracy: {Math.round(accuracy)}%</p>
-            <p>Errors: {errors}</p>
-
-            <button onClick={handleRestart}>Перезапуск</button>
-          </div>
-        </div>
+        <ResultModal
+        userWPM = {userWPM}
+        accuracy = {accuracy}
+        errors = {errors}
+        handleRestart = {handleRestart}
+        />
       )}
     </div>
   );
