@@ -39,9 +39,8 @@ p {
   line-height: 2;
   font-size: 1.7rem;
   letter-spacing: 0.05em;
-  overflow-wrap: break-word; /* перенос слов */
-  word-wrap: break-word;     /* для старых браузеров */
-  word-break: break-word;    /* принудительный перенос */
+  overflow: hidden; /* скрываем лишнее */
+  height: 6rem; /* высота примерно 3 строки */
 }
 
 /* --- Состояния букв --- */

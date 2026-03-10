@@ -3,12 +3,12 @@ import "./App.css";
 import wordsData from "./data/words.json";
 
 function App() {
-  const [userLanguage, setUserLanguage] = useState("en");
-
-  const [displayText, setDisplayText] = useState(""); // строка с текстом для печати
+  const [userLanguage, setUserLanguage] = useState("en"); // выбор языка
+  const [lines, setLines] = useState([]); // массив строк для отображения
+  const [currentLineIndex, setCurrentLineIndex] = useState(0); // индекс строки, которую печатаем
+  const [typedChars, setTypedChars] = useState([]); // символы текущей строки
   const [splitText, setSplitText] = useState([]); // массив символов для подсветки
   const typingRef = useRef(null); // useRef для автофокуса на поле ввода
-  const [typedChars, setTypedChars] = useState([]); // ввод символов
   const [timeLimit, setTimeLimit] = useState(30); // лимит времени
   const [timeLeft, setTimeLeft] = useState(30); // остаток времени
   const [isRunning, setIsRunning] = useState(false); // Проверка начал ли пользователь печатать
@@ -23,7 +23,7 @@ function App() {
   const [showResults, setShowResults] = useState(false); // для UX дизайна - показывать результат или нет
 
   function generateText(lang, wordCount = 50) {
-    const source = wordsData[lang]
+    const source = wordsData[lang];
     let text = [];
     for (let i = 0; i < wordCount; i++) {
       const word = source[Math.floor(Math.random() * source.length)];
@@ -57,10 +57,14 @@ function App() {
   }, [isRunning]); // useEffect для useRef для автоматического фокуса на поле ввода
 
   function handleStart(e) {
-    const text = generateText(userLanguage, 20);
-    setDisplayText(text);
-    setSplitText(text.split(""));
-
+    const initialLines = [
+      generateText(userLanguage, 20),
+      generateText(userLanguage, 20),
+      generateText(userLanguage, 20),
+    ]
+    setLines(initialLines)
+    setCurrentLineIndex(0)
+    setTypedChars([])
     setTypedChars([]);
     setTimeLeft(timeLimit);
     setIsRunning(true);
@@ -72,9 +76,14 @@ function App() {
 
   function handleKeyDown(e) {
     const currentIndex = typedChars.length;
-    const expectedChar = splitText[currentIndex];
+    const expectedChar = lines[currentLineIndex][typedChars.length];
     e.preventDefault();
     if (timeLeft === 0) return;
+    if (typedChars.length >= lines[0].length)// строка завершена
+      { 
+        setLines(prev => [...prev.slice(1),generateText(userLanguage,10)])
+        setTypedChars([])
+     } 
     if (!isAddingText && splitText.length - typedChars.length <= 50) {
       // Добавление новых слов если они заканчиваются
       setIsAddingText(true);
@@ -172,28 +181,16 @@ function App() {
         </p>
       )}
       {(isRunning || displayText.length > 0) && (
-        <div
-          className="typing-container"
-          ref={typingRef}
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
-          onClick={() => typingRef.current.focus()}
-        >
-          {splitText.map((ch, index) => {
-            let className = "";
-
-            if (index < typedChars.length) {
-              className = typedChars[index].status;
-            } else if (index === typedChars.length) {
-              className = "current";
-            } else className = "pending";
-
-            return (
-              <span className={className} key={index}>
-                {ch}
-              </span>
-            );
+        <div className="typing-container" ref={typingRef} onKeyDown={handleKeyDown} tabIndex={0}>
+          {lines.map((line, idx) => (
+          <div key={idx} className={idx === currentLineIndex ? "active-line" : "inactive-line"}>
+          {line.split("").map((ch, cIdx) => {
+            const status = typedChars[cIdx]?.status || "pending";
+            return <span key={cIdx} className={status}>{ch}</span>;
           })}
+    </div>
+  ))}
+</div>
         </div>
       )}
       {showResults && (
