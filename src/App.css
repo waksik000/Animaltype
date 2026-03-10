@@ -18,7 +18,7 @@ p {
 }
 
 /* --- Текст для печати --- */
-div[tabindex="0"] {
+.typing-container {
   display: inline-block;
   padding: 1rem 2rem;
   margin-top: 2rem;
@@ -31,6 +31,9 @@ div[tabindex="0"] {
   line-height: 2;
   font-size: 1.7rem;
   letter-spacing: 0.05em;
+  overflow-wrap: break-word; /* перенос слов */
+  word-wrap: break-word;     /* для старых браузеров */
+  word-break: break-word;    /* принудительный перенос */
 }
 
 /* --- Состояния букв --- */
