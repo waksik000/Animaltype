@@ -1,5 +1,5 @@
 import React from "react"
-export default function ResultModal ({ userWPM,accuracy, errors, handleRestart  }) {
+export default function ResultModal ({ userWPM,accuracy, errors, handleRestart, setShowHistory  }) {
     return (
         <div className="modal-overlay">
           <div className="modal">
@@ -9,6 +9,7 @@ export default function ResultModal ({ userWPM,accuracy, errors, handleRestart  
             <p>Errors: {errors}</p>
 
             <button onClick={handleRestart}>Перезапуск</button>
+            <button onClick={() => {setShowHistory(true)}}>Показать историю</button>
           </div>
         </div>
     )

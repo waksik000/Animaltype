@@ -5,6 +5,7 @@ import Settings from "./components/Settings";
 import Timer from "./components/Timer";
 import TypingArea from "./components/TypingArea";
 import ResultModal from "./components/ResultModal";
+import HistoryModal from "./components/HistoryModal";
 function App() {
   const [userLanguage, setUserLanguage] = useState("ru"); // выбор языка
   const [lines, setLines] = useState([]); // массив строк для отображения
@@ -15,6 +16,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [isRunning, setIsRunning] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [showHistory, setShowHistory] = useState(false)
 
   // Расчёт статистики
   const correctChars = totalTypedChars.filter((c) => c.status === "correct").length;
@@ -32,7 +34,6 @@ function App() {
     }
     return text.join(" ");
   }
-
   useEffect(() => {
     if (!isRunning) return;
     const timer = setInterval(() => setTimeLeft((prev) => Math.max(prev - 1, 0)), 1000);
@@ -41,8 +42,21 @@ function App() {
 
   useEffect(() => {
     if (timeLeft === 0) {
+      //запумк окна с результатмо
       setIsRunning(false);
       setShowResults(true);
+
+
+      // сохранение в локал сторэдж
+      const newAttempt = {
+        date: new Date().toISOString(),
+        wpm: Math.round(userWPM),
+        accuracy: Math.round(accuracy),
+        errors,
+      }
+      const history = JSON.parse(localStorage.getItem('typingHistory')) || []
+      history.push(newAttempt)
+      localStorage.setItem('typingHistory', JSON.stringify(history))
     }
   }, [timeLeft]);
 
@@ -137,7 +151,17 @@ function App() {
         accuracy = {accuracy}
         errors = {errors}
         handleRestart = {handleRestart}
+        setShowHistory={setShowHistory}
         />
+      )}
+
+      {showHistory && (
+        <HistoryModal
+          history = {JSON.parse(localStorage.getItem('typingHistory'))}
+          onClose={() => setShowHistory(false)}
+        >
+
+        </HistoryModal>
       )}
     </div>
   );
