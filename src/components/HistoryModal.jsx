@@ -23,7 +23,7 @@ export default function HistoryModal ({onClose}) {
                         
                             
                             return (<li key={index}>
-                                <strong>{formattedDate}</strong>    WPM: {attemp.wpm || 'N/A'}, Accuracy: {attemp.accuracy ? attemp.accuracy.toFixed(1) : 'N/A'}%, Errors: {attemp.errors || 'N/A'}
+                                <strong>{formattedDate}</strong>    WPM: {attemp.wpm != null ? attemp.wpm : 'N/A'}, Accuracy: {attemp.accuracy != null ? attemp.accuracy.toFixed(1) : 'N/A'}%, Errors: {attemp.errors != null ? attemp.errors : 'N/A'}
                             </li>
                         )
 })}
