@@ -47,16 +47,19 @@ function App() {
       setShowResults(true);
 
 
-      // сохранение в локал сторэдж
+      // сохранение на сервер через API
       const newAttempt = {
         date: new Date().toISOString(),
         wpm: Math.round(userWPM),
         accuracy: Math.round(accuracy),
         errors,
-      }
-      const history = JSON.parse(localStorage.getItem('typingHistory')) || []
-      history.push(newAttempt)
-      localStorage.setItem('typingHistory', JSON.stringify(history))
+      };
+      // Отправляем POST-запрос на сервер для сохранения результата
+      fetch('http://localhost:5000/api/results', {
+        method: 'POST',  // Метод запроса — POST для создания нового ресурса
+        headers: { 'Content-Type': 'application/json' },  // Заголовок указывает, что тело — JSON
+        body: JSON.stringify(newAttempt)  // Преобразуем объект в JSON-строку для отправки
+      }).catch(err => console.error('Save error:', err));  // Обрабатываем ошибки, если запрос не удался
     }
   }, [timeLeft]);
 
@@ -157,7 +160,6 @@ function App() {
 
       {showHistory && (
         <HistoryModal
-          history = {JSON.parse(localStorage.getItem('typingHistory'))}
           onClose={() => setShowHistory(false)}
         >
 
