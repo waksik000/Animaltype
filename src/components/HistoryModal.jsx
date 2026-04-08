@@ -2,36 +2,58 @@ import React, { useState, useEffect } from "react";
 
 export default function HistoryModal ({onClose}) {
     
-    const [history, setHistory] = useState([]);  // Состояние для хранения истории из API
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    
     useEffect(() => {
-        // Загружаем историю с сервера при открытии модала
-        fetch('http://localhost:5000/api/results')  // GET-запрос на сервер
-            .then(res => res.json())  // Преобразуем ответ в JSON
-            .then(data => setHistory(data))  // Сохраняем данные в состояние
-            .catch(err => console.error('Load error:', err));  // Обрабатываем ошибки
-    }, []);  // Пустой массив зависимостей — эффект запускается один раз при монтировании
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        fetch('http://localhost:5000/api/results', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(res => {
+              if (!res.ok) throw new Error('Ошибка загрузки истории');
+              return res.json();
+            })
+            .then(data => {
+              setHistory(Array.isArray(data) ? data.reverse() : []);
+              setError('');
+            })
+            .catch(err => {
+              console.error('Load error:', err);
+              setError('Не удалось загрузить историю');
+            })
+            .finally(() => setLoading(false));
+    }, []);
     
     return (
         <div className="modal-overlay">
             <div className="modal">
                 <h2>История попыток</h2>
-                {history.length === 0 ? (<p>Нет сохраненных попыток</p>) : (
-                    <ul>
-                        {history.map((attemp, index) => {
-                            const date = new Date(attemp.date)
-                            const formattedDate = date.toLocaleString()
-                        
-                            
-                            return (<li key={index}>
-                                <strong>{formattedDate}</strong>    WPM: {attemp.wpm != null ? attemp.wpm : 'N/A'}, Accuracy: {attemp.accuracy != null ? attemp.accuracy.toFixed(1) : 'N/A'}%, Errors: {attemp.errors != null ? attemp.errors : 'N/A'}
-                            </li>
-                        )
-})}
-                    </ul>
+                {error && <p style={{ color: '#ff6b6b', marginBottom: '1rem' }}>{error}</p>}
+                {loading && <p>Загрузка...</p>}
+                {!loading && history.length === 0 && <p>Нет сохранённых попыток</p>}
+                {!loading && history.length > 0 && (
+                    <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                      <table>
+                        <tbody>
+                          {history.map((attempt, index) => {
+                            const date = new Date(attempt.date).toLocaleString('ru-RU');
+                            return (
+                              <tr key={attempt._id || index}>
+                                <td style={{borderBottom: '1px solid #444', padding: '0.5rem', color: '#ccc'}}>
+                                  <strong>{date}</strong><br/>
+                                  WPM: {attempt.wpm ?? 'N/A'} | Точность: {attempt.accuracy != null ? attempt.accuracy.toFixed(1) : 'N/A'}% | Ошибок: {attempt.errors ?? 'N/A'}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                 )}
-
-
-                <button onClick={onClose}>Закрыть</button>
+                <button onClick={onClose} style={{ marginTop: '1rem' }}>Закрыть</button>
             </div>
         </div>
     )

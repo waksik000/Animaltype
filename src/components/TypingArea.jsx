@@ -1,5 +1,14 @@
 
+import { useEffect } from 'react';
+
 export default function TypingArea ({ lines, typedChars, handleKeyDown, typingRef }) {
+    useEffect(() => {
+        const currentElement = typingRef.current?.querySelector('.current');
+        if (currentElement) {
+            currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [typedChars.length]);
+
     return (<div
           className="typing-container"
           ref={typingRef}

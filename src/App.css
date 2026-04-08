@@ -1,46 +1,123 @@
 /* --- Общие контейнеры --- */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #121212;
 }
 
-h1 {
-  font-size: 3em;
-  margin-bottom: 0.3em;
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #fff;
+  background-color: #121212;
 }
 
-p {
-  color: #ccc;
-  margin: 0.3em 0;
+/* --- Header --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 2rem;
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
+
+.header h1 {
+  font-size: 2em;
+  color: #646cff;
+  margin: 0;
+}
+
+.header .auth-buttons {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.subtitle {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #646cff;
+  margin: 1rem 0 2rem 0;
+}
+
+.header button {
+  padding: 0.5rem 1rem;
+  background-color: #646cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.header button:hover {
+  background-color: #535bf2;
+}
+
 /* Контейнер приложения */
 .app-container {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Центрирует по горизонтали */
-  gap: 1.5rem; /* Расстояние между заголовком, подписью и настройками */
-  margin-top: 2rem;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem;
+  padding-top: 0;
+  box-sizing: border-box;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.not-logged-in {
+  text-align: center;
+  padding: 3rem;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  border: 2px solid #646cff;
+  font-size: 1.2rem;
+  color: #ccc;
 }
 
 /* --- Текст для печати --- */
 .typing-container {
   display: inline-block;
-  padding: 1rem 2rem;
-  margin-top: 2rem;
+  padding: 1.5rem 2rem;
   border-radius: 12px;
   background-color: #1e1e1e;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  max-width: 90%;
+  width: 100%;
+  max-width: 600px;
   cursor: text;
   user-select: none;
-  line-height: 2;
-  font-size: 1.7rem;
+  line-height: 2.2;
+  font-size: 1.6rem;
   letter-spacing: 0.05em;
-  overflow: hidden; /* скрываем лишнее */
-  height: 6rem; /* высота примерно 3 строки */
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 200px;
+  box-sizing: border-box;
+  scrollbar-width: none;
+}
+
+.typing-container::-webkit-scrollbar {
+  display: none;
 }
 
 /* --- Состояния букв --- */
@@ -80,10 +157,12 @@ p {
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.7);
   color: #fff;
-  max-width: 400px;
+  max-width: 600px;
   width: 90%;
   text-align: center;
   animation: fadeIn 0.3s ease-out;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 .modal h2 {
@@ -97,23 +176,185 @@ p {
   font-size: 1.1rem;
 }
 
-/* --- Кнопки --- */
-button {
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal input {
+  padding: 0.8rem;
+  border: 2px solid #646cff;
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1rem;
-  font-weight: 500;
-  font-family: inherit;
   background-color: #1a1a1a;
   color: #fff;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: #535bf2;
+  box-shadow: 0 0 10px rgba(100, 108, 255, 0.5);
+}
+
+.modal button {
+  padding: 0.8rem;
+  background-color: #646cff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.modal button:hover {
+  background-color: #535bf2;
+}
+
+.modal button:active {
+  transform: scale(0.98);
+}
+
+.modal .buttons-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   margin-top: 1rem;
+}
+
+.results-stats {
+  background-color: #1a1a1a;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid #646cff;
+}
+
+.results-stats p {
+  margin: 0.5rem 0;
+  text-align: left;
+  color: #ccc;
+}
+
+/* --- Settings --- */
+.settings-container {
+  background-color: #1e1e1e;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  width: 90%;
+}
+
+.settings-container h2 {
+  color: #646cff;
+  margin-bottom: 1.5rem;
+}
+
+.settings-group {
+  margin-bottom: 2rem;
+}
+
+.settings-group label {
+  display: block;
+  margin-bottom: 1rem;
+  color: #ccc;
+  font-weight: bold;
+}
+
+.settings-group .buttons-group {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.settings-group button {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.8rem;
+  background-color: #2a2a2a;
+  color: #ccc;
+  border: 2px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+}
+
+.settings-group button.active {
+  background-color: #646cff;
+  color: #fff;
+  border-color: #646cff;
+}
+
+.settings-group button:hover:not(.active) {
+  border-color: #646cff;
+  color: #646cff;
+}
+
+.start-button {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #646cff;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.start-button:hover {
+  background-color: #535bf2;
+}
+
+/* --- Адаптив --- */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .header h1 {
+    font-size: 1.5em;
+  }
+  .typing-container {
+    font-size: 1.4rem;
+    height: 150px;
+    max-width: 100%;
+  }
+  .modal {
+    padding: 1rem 2rem;
+    width: 95%;
+    max-width: 95%;
+  }
+  .modal table th,
+  .modal table td {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.85rem;
+  }
+  .not-logged-in {
+    padding: 2rem;
+    font-size: 1rem;
+  }
+}
+button {
+  border-radius: 8px;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: inherit;
+  background-color: #646cff;
+  color: #fff;
+  cursor: pointer;
   transition: all 0.25s ease;
 }
 button:hover {
-  border-color: #646cff;
-  background-color: #1f1f1f;
+  background-color: #535bf2;
+}
+button:active {
+  transform: scale(0.95);
 }
 
 /* --- Анимация появления модального окна --- */
@@ -126,6 +367,48 @@ button:hover {
     transform: translateY(0px);
     opacity: 1;
   }
+}
+
+/* --- Таблица лидеров --- */
+.modal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.modal table thead {
+  background-color: #1a1a1a;
+  position: sticky;
+  top: 0;
+}
+
+.modal table th {
+  color: #646cff;
+  font-weight: bold;
+  padding: 0.8rem 0.6rem;
+  text-align: center;
+  border-bottom: 2px solid #646cff;
+}
+
+.modal table td {
+  padding: 0.8rem 0.6rem;
+  text-align: center;
+  border-bottom: 1px solid #444;
+  color: #ccc;
+}
+
+.modal table td:first-child {
+  font-weight: bold;
+  color: #646cff;
+}
+
+.modal table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.modal table tbody tr:hover {
+  background-color: rgba(100, 108, 255, 0.15);
 }
 
 /* --- Фокус на div с текстом --- */
