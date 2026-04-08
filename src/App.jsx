@@ -8,6 +8,7 @@ import AuthModal from "./components/AuthModal";
 import Leaderboard from "./components/Leaderboard";
 import ResultModal from "./components/ResultModal";
 import HistoryModal from "./components/HistoryModal";
+import SupportChat from "./components/SupportChat";
 function App() {
   const [userLanguage, setUserLanguage] = useState("ru"); // выбор языка
   const [lines, setLines] = useState([]); // массив строк для отображения
@@ -22,6 +23,21 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); // Проверяем токен при загрузке
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+
+  // Функция для получения роли из токена
+  const getUserRole = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return 'user';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role || 'user';
+    } catch {
+      return 'user';
+    }
+  };
+
+  const isAdmin = getUserRole() === 'admin';
 
   // Расчёт статистики из всех введённых символов
   const correctChars = allTypedChars.filter((c) => c.status === "correct").length;
@@ -161,6 +177,7 @@ function App() {
           ) : (
             <>
               <button onClick={() => setShowLeaderboard(true)}>Лидеры</button>
+              <button onClick={() => setShowSupport(true)}>Поддержка</button>
               <button onClick={() => { localStorage.removeItem('token'); setIsLoggedIn(false); }}>Выйти</button>
             </>
           )}
@@ -232,6 +249,13 @@ function App() {
       {showLeaderboard && (
         <Leaderboard
           onClose={() => setShowLeaderboard(false)}
+        />
+      )}
+
+      {showSupport && (
+        <SupportChat
+          onClose={() => setShowSupport(false)}
+          isAdmin={isAdmin}
         />
       )}
     </div>

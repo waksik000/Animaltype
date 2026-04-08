@@ -44,7 +44,13 @@ router.post('/login', async (req, res) => {
     if (!user || !await bcrypt.compare(password, user.password)) {
       return res.status(401).send({ error: 'Неверное имя пользователя или пароль' });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET); // Используем переменную окружения
+    // Для демонстрации: если username 'admin', сделать админом
+    if (username === 'admin') {
+      user.role = 'admin';
+      await user.save();
+    }
+    const token = jwt.sign({ userId: user._id, role: user.role, username: user.username }, process.env.JWT_SECRET); // Используем переменную окружения
+    console.log('Generated token for:', username, 'payload:', { userId: user._id, role: user.role, username: user.username });
     res.send({ token });
   } catch (error) {
     res.status(500).send({ error: error.message });
