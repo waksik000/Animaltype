@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import styles from './SupportChat.module.css';
 
 export default function SupportChat({ onClose, isAdmin }) {
   const [messages, setMessages] = useState([]);
@@ -22,15 +23,17 @@ export default function SupportChat({ onClose, isAdmin }) {
     });
 
     socketRef.current.on('new support message', (msg) => {
-      setMessages(prev => [...prev, { ...msg, type: 'user' }]);
+      setMessages(prev => [...prev, msg]);
     });
 
     socketRef.current.on('admin message', (msg) => {
-      setMessages(prev => [...prev, { ...msg, type: 'admin' }]);
+      setMessages(prev => [...prev, msg]);
     });
 
     return () => {
-      socketRef.current.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
   }, []);
 
@@ -40,36 +43,72 @@ export default function SupportChat({ onClose, isAdmin }) {
 
   const sendMessage = () => {
     if (!message.trim()) return;
-    socketRef.current.emit('support message', message);
-    setMessages(prev => [...prev, { from: 'Вы', message, type: 'self', timestamp: new Date() }]); // Показать своё сообщение
+    socketRef.current.emit('support message', message.trim());
     setMessage('');
   };
 
   const startReply = (to) => {
-    console.log('startReply called with:', to);
     setReplyTo(to);
   };
 
   const sendReply = () => {
-    if (!replyMessage.trim()) return;
-    socketRef.current.emit('admin reply', { to: replyTo, message: replyMessage });
-    // Не добавляем локально, сервер emit всем
+    if (!replyMessage.trim() || !replyTo) return;
+    
+    socketRef.current.emit('admin reply', { 
+      to: replyTo, 
+      message: replyMessage.trim() 
+    });
+    
     setReplyTo(null);
     setReplyMessage('');
   };
 
+  const formatTime = (timestamp) => {
+    return new Date(timestamp).toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getMessageStyle = (type) => {
+    switch (type) {
+      case 'admin': return styles.messageAdmin;
+      case 'self': return styles.messageSelf;
+      default: return styles.messageUser;
+    }
+  };
+
   return (
-    <div className="modal-overlay">
-      <div className="modal" style={{ width: '500px', height: '600px', display: 'flex', flexDirection: 'column' }}>
-        <h2>{isAdmin ? 'Админ: Чат поддержки' : 'Чат поддержки'}</h2>
-        <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem', padding: '1rem', backgroundColor: '#1e1e1e', borderRadius: '8px' }}>
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <h2 className={styles.header}>
+          {isAdmin ? 'Админ: Чат поддержки' : 'Чат поддержки'}
+        </h2>
+        
+        <div className={styles.messagesContainer}>
+          {messages.length === 0 && (
+            <p className={styles.emptyState}>
+              {isAdmin ? 'Нет обращений от пользователей' : 'Напишите ваш вопрос, и администратор ответит вам'}
+            </p>
+          )}
+          
           {messages.map((msg, index) => (
-            <div key={index} style={{ marginBottom: '0.5rem', padding: '0.5rem', backgroundColor: msg.type === 'admin' ? '#2a4d69' : msg.type === 'self' ? '#4a6d4a' : '#4a4a4a', borderRadius: '4px' }}>
-              <strong>{msg.from} {msg.to ? `-> ${msg.to}` : ''}:</strong> {msg.message}
-              <br />
-              <small>{new Date(msg.timestamp).toLocaleTimeString()}</small>
+            <div key={index} className={`${styles.message} ${getMessageStyle(msg.type)}`}>
+              <div className={styles.messageHeader}>
+                <strong className={styles.messageSender}>
+                  {msg.from} {msg.to ? `→ ${msg.to}` : ''}
+                </strong>
+                <small className={styles.messageTime}>
+                  {formatTime(msg.timestamp)}
+                </small>
+              </div>
+              <div className={styles.messageText}>{msg.message}</div>
+              
               {isAdmin && msg.type === 'user' && (
-                <button onClick={() => startReply(msg.from)} style={{ marginLeft: '1rem', fontSize: '0.8rem' }}>
+                <button 
+                  onClick={() => startReply(msg.from)} 
+                  className={styles.replyButton}
+                >
                   Ответить
                 </button>
               )}
@@ -77,35 +116,51 @@ export default function SupportChat({ onClose, isAdmin }) {
           ))}
           <div ref={messagesEndRef} />
         </div>
+
         {replyTo && (
-          <div style={{ marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#2a2a2a', borderRadius: '4px' }}>
-            <p>Ответить {replyTo}:</p>
+          <div className={styles.replyContainer}>
+            <p className={styles.replyLabel}>
+              Ответ для: <span className={styles.replyUsername}>{replyTo}</span>
+            </p>
             <input
               type="text"
               value={replyMessage}
               onChange={(e) => setReplyMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && sendReply()}
               placeholder="Введите ответ..."
-              style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }}
+              className={styles.replyInput}
+              autoFocus
             />
-            <button onClick={sendReply}>Отправить ответ</button>
-            <button onClick={() => setReplyTo(null)} style={{ marginLeft: '0.5rem' }}>Отмена</button>
+            <div className={styles.replyActions}>
+              <button onClick={sendReply} className={styles.sendButton}>
+                Отправить
+              </button>
+              <button onClick={() => setReplyTo(null)} className={styles.cancelButton}>
+                Отмена
+              </button>
+            </div>
           </div>
         )}
+
         {!isAdmin && (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className={styles.inputContainer}>
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
               placeholder="Введите сообщение..."
-              style={{ flex: 1, padding: '0.5rem' }}
+              className={styles.messageInput}
             />
-            <button onClick={sendMessage}>Отправить</button>
+            <button onClick={sendMessage} className={styles.sendMessageButton}>
+              Отправить
+            </button>
           </div>
         )}
-        <button onClick={onClose} style={{ marginTop: '1rem' }}>Закрыть</button>
+
+        <button onClick={onClose} className={styles.closeButton}>
+          Закрыть
+        </button>
       </div>
     </div>
   );
