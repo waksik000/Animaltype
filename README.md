@@ -82,17 +82,18 @@ npm run dev
     ├── frontend/
     │   ├── src/
     │   │   ├── components/        # React компоненты
-    │   │   │   ├── UI/           # Переиспользуемые UI компоненты
-    │   │   │   ├── Header.jsx    # Шапка сайта
-    │   │   │   ├── SupportChat.jsx # Чат поддержки
-    │   │   │   └── ...
-    │   │   ├── pages/            # Страницы приложения
-    │   │   ├── hooks/            # Кастомные хуки
-    │   │   ├── services/         # API сервисы
-    │   │   ├── context/          # React контекст
-    │   │   ├── assets/           # Статические файлы
-    │   │   └── App.jsx           # Корневой компонент
-    │   ├── public/
+    │   │   │   ├── AuthModal.jsx          
+    │   │   │   ├── HistoryModal.jsx    # Шапка сайта
+    │   │   │   ├── Leaderboard.jsx # Чат поддержки
+    │   │   │   ├── ResultModal.jsx
+    │   │   │   ├── Settings.jsx
+    │   │   │   ├── SupportChat.jsx
+    │   │   │   ├── SupportChat.module.css
+    │   │   │   ├── Timer.jsx
+    │   │   │   └── TypingArea.jsx
+    │   │   ├── data/            # const файлы
+    │   │   ├   ├── words.json
+    │   │   └── App.jsx          # Корневой компонент
     │   └── package.json
     ├── backend/
     │   ├── config/               # Конфигурации

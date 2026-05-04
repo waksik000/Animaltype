@@ -1,0 +1,121 @@
+.rankContainer {
+  margin: 1.5rem 0;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.rankBadge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem;
+  background-color: #1a1a1a;
+  border: 2px solid;
+  border-radius: 12px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.rankBadge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.rankEmoji {
+  font-size: 3rem;
+  line-height: 1;
+  min-width: 60px;
+  text-align: center;
+  animation: bounce 2s infinite;
+}
+
+.rankInfo {
+  flex: 1;
+}
+
+.rankTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.rankDescription {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.progressSection {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.progressText {
+  margin: 0 0 0.5rem 0;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.progressText strong {
+  color: #fff;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease-in-out;
+}
+
+.progressPercentage {
+  margin: 0;
+  color: #888;
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.maxRank {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.maxRank p {
+  margin: 0;
+  color: #FFD700;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}

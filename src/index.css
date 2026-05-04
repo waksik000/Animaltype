@@ -72,3 +72,17 @@ button.active {
   box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.5);
   background-color: #2e2e2e;
 }
+/* Анимация для ранга */
+.rank-wrapper {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.rank-wrapper.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.rank-wrapper.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
